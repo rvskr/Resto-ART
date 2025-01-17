@@ -26,13 +26,20 @@ function CaseModal({ case_, onClose }: CaseModalProps) {
     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
       <div
         ref={modalRef}
-        className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto"
+        className="bg-white rounded-lg max-w-4xl w-full max-h-[85vh] overflow-y-auto relative"
       >
         <div className="p-6">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-bold">{case_.title}</h2>
+            {/* Close button */}
+            <button
+              onClick={onClose}
+              className="text-gray-600 hover:text-gray-900 focus:outline-none text-3xl fixed top-7 right-5"
+            >
+              &times;
+            </button>
           </div>
-          
+
           <div className="grid md:grid-cols-2 gap-6 mb-8">
             <div>
               <h3 className="text-lg font-semibold mb-2">До реставрации</h3>
