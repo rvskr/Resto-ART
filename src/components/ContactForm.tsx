@@ -65,8 +65,8 @@ const ContactForm: React.FC = () => {
   
         // Отправка данных в Telegram-бот
         const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-        const botToken = import.meta.env.VITE_APP_BOT_TOKEN;  // Токен из .env
-        const chatId = import.meta.env.VITE_APP_CHAT_ID;  // chat_id из .env
+        const botToken = import.meta.env.VITE_APP_BOT_TOKEN;  
+        const chatId = import.meta.env.VITE_APP_CHAT_ID;  
         const messageText = `
           Новое сообщение с формы обратной связи:
           Имя: ${name}
@@ -91,13 +91,13 @@ const ContactForm: React.FC = () => {
         const data = await response.json();
   
         if (!response.ok) {
-          console.error('Ошибка при отправке в Telegram:', data);  // Логируем ошибку
+          console.error('Ошибка при отправке в Telegram:');  
         } else {
-          console.log('Сообщение успешно отправлено в Telegram:', data);
+          console.log('Сообщение успешно отправлено в Telegram');
         }
       }
     } catch (error) {
-      console.error('Произошла ошибка при отправке данных:', error);  // Логируем ошибку
+      console.error('Произошла ошибка при отправке данных:', error); 
       setError('Произошла ошибка. Попробуйте позже.');
     } finally {
       setLoading(false);

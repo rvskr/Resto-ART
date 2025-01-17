@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronRight, Hammer, Mail, Phone, Palette, Brush, HandMetal } from 'lucide-react';
-import { Link } from 'react-router-dom'; // Import Link for routing
-import { Case } from './types';
+import { ChevronRight } from 'lucide-react';
 import Header from './components/Header';
 import CaseModal from './components/CaseModal';
-import ContactForm from './components/ContactForm'; // Импортируем компонент ContactForm
+import ContactForm from './components/ContactForm';
+import ServicesSection from './components/ServicesSection'; // Импортируем компонент ServicesSection
 import { supabase } from './lib/supabase';
 
 function App() {
@@ -30,7 +29,7 @@ function App() {
       }), {});
       setContentBlocks(blocks);
       
-      // Load background image URL from the content blocks or another table
+      // Загружаем фоновое изображение из блока "hero" или другой таблицы
       const heroBlock = blocksData.find(block => block.name === 'hero');
       if (heroBlock && heroBlock.background_image) {
         setBackgroundImage(heroBlock.background_image); 
@@ -49,52 +48,23 @@ function App() {
 
       {/* Hero Section */}
       <section id="hero" className="relative h-[80vh] bg-cover bg-center" style={{
-  backgroundImage: backgroundImage ? `url(${backgroundImage})` : 'url(https://cdn.pixabay.com/photo/2016/04/18/13/53/room-1336497_1280.jpg)'
-}}>
-  <div className="absolute inset-0 bg-black/50" />
-  <div className="relative container mx-auto px-4 h-full flex items-center">
-    <div className="max-w-2xl text-white">
-      <h1 className="text-5xl font-bold mb-6">{contentBlocks.hero?.title}</h1>
-      <p className="text-xl mb-8">{contentBlocks.hero?.description}</p>
-      <a href="#contact" className="inline-flex items-center bg-amber-600 hover:bg-amber-700 text-white px-6 py-3 rounded-lg transition-colors">
-        Обсудить проект
-        <ChevronRight className="ml-2 h-5 w-5" />
-      </a>
-    </div>
-  </div>
-</section>
-
-
-      {/* Services Section */}
-      <section id="services" className="py-20 bg-white">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-4">{contentBlocks.services?.title}</h2>
-          <p className="text-center text-gray-600 mb-12 max-w-2xl mx-auto">{contentBlocks.services?.description}</p>
-          <div className="grid md:grid-cols-3 gap-8">
-            {[{
-              icon: <HandMetal className="h-8 w-8 text-amber-600" />,
-              title: contentBlocks.services_handwork?.title || 'Ручная реставрация',
-              description: contentBlocks.services_handwork?.description || 'Бережное восстановление антикварной мебели с использованием традиционных техник и материалов',
-            },
-            {
-              icon: <Palette className="h-8 w-8 text-amber-600" />,
-              title: contentBlocks.services_painting?.title || 'Художественная роспись',
-              description: contentBlocks.services_painting?.description || 'Создание уникальных художественных элементов и декоративной росписи на мебели',
-            },
-            {
-              icon: <Brush className="h-8 w-8 text-amber-600" />,
-              title: contentBlocks.services_finishing?.title || 'Авторская отделка',
-              description: contentBlocks.services_finishing?.description || 'Разработка индивидуальных решений для отделки и декорирования мебели',
-            }].map((service, index) => (
-              <div key={index} className="p-6 bg-stone-50 rounded-lg hover:shadow-lg transition-shadow">
-                {service.icon}
-                <h3 className="text-xl font-semibold mt-4 mb-2">{service.title}</h3>
-                <p className="text-gray-600">{service.description}</p>
-              </div>
-            ))}
+        backgroundImage: backgroundImage ? `url(${backgroundImage})` : 'url(https://cdn.pixabay.com/photo/2016/04/18/13/53/room-1336497_1280.jpg)'
+      }}>
+        <div className="absolute inset-0 bg-black/50" />
+        <div className="relative container mx-auto px-4 h-full flex items-center">
+          <div className="max-w-2xl text-white">
+            <h1 className="text-5xl font-bold mb-6">{contentBlocks.hero?.title}</h1>
+            <p className="text-xl mb-8">{contentBlocks.hero?.description}</p>
+            <a href="#contact" className="inline-flex items-center bg-amber-600 hover:bg-amber-700 text-white px-6 py-3 rounded-lg transition-colors">
+              Обсудить проект
+              <ChevronRight className="ml-2 h-5 w-5" />
+            </a>
           </div>
         </div>
       </section>
+
+      {/* Services Section */}
+      <ServicesSection contentBlocks={contentBlocks} /> {/* Используем компонент ServicesSection */}
 
       {/* Process Section */}
       <section id="process" className="py-20 bg-stone-100">
@@ -166,20 +136,20 @@ function App() {
 
           {/* Show More Button */}
           <div className="text-center mt-8">
-            <Link
-              to="/portfolio"  // Link to the PortfolioPage
+            <a
+              href="/portfolio"
               className="inline-flex items-center bg-amber-600 hover:bg-amber-700 text-white px-6 py-3 rounded-lg transition-colors"
             >
               Показать еще
               <ChevronRight className="ml-2 h-5 w-5" />
-            </Link>
+            </a>
           </div>
         </div>
       </section>
 
       {/* Contact Section */}
       <section id="contact" className="py-20 bg-stone-100">
-              <ContactForm /> 
+        <ContactForm /> 
       </section>
 
       {/* Case Modal */}

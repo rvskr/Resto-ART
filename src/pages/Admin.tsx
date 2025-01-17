@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom';
 import ContactEdit from '../components/ContactEdit';
 
 
+
 interface Case {
   id: string;
   title: string;
