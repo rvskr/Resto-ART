@@ -126,7 +126,7 @@ function App() {
                   <h3 className="text-xl font-semibold mb-2">{case_.title}</h3>
                   <p className="text-gray-600">{case_.description}</p>
                   <div className="mt-4 flex items-center text-amber-600">
-                    <span>Подробнее</span>
+                    <span>{contentBlocks.details?.title}</span>
                     <ChevronRight className="ml-1 h-4 w-4" />
                   </div>
                 </div>
@@ -140,7 +140,7 @@ function App() {
               href="/portfolio"
               className="inline-flex items-center bg-amber-600 hover:bg-amber-700 text-white px-6 py-3 rounded-lg transition-colors"
             >
-              Показать еще
+              {contentBlocks.more_button?.title }
               <ChevronRight className="ml-2 h-5 w-5" />
             </a>
           </div>

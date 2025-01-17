@@ -89,7 +89,7 @@ const ContactEdit: React.FC = () => {
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-amber-600 text-white py-3 px-6 rounded-md text-sm hover:bg-amber-700 transition duration-300"
+          className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
         >
           {loading ? 'Сохранение...' : 'Сохранить изменения'}
         </button>

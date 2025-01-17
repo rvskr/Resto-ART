@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Pencil, Trash2, Plus, Save, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import ContactEdit from '../components/ContactEdit';
+import ServicesEdit from '../components/ServicesEdit';
 
 
 
@@ -367,7 +368,9 @@ export default function Admin() {
             </div>
           ))}
         </section>
-
+        <section className="bg-white rounded-lg p-6 mb-8 shadow-sm">
+                <ServicesEdit />
+          </section>
         <section className="bg-white rounded-lg p-6 mb-8 shadow-sm">
           <h2 className="text-xl font-semibold mb-4">Блоки контента</h2>
           <div className="space-y-4">
