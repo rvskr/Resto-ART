@@ -192,18 +192,6 @@ export default function Admin() {
     setEditingBlock(null);
   };
 
-  const handleSaveContact = async () => {
-    if (contactInfo) {
-      const { error } = await supabase
-        .from('contact_info')
-        .update({ phone: contactInfo.phone, email: contactInfo.email })
-        .eq('id', contactInfo.id);
-
-      if (!error) {
-        setEditingContact(false);
-      }
-    }
-  };
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
