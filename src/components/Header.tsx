@@ -21,7 +21,7 @@ function Header() {
     }
   };
 
-  // Loading content from Supabase
+
   useEffect(() => {
     const loadData = async () => {
       const { data: blocksData } = await supabase.from('content_blocks').select('*');
@@ -38,11 +38,11 @@ function Header() {
     };
 
     loadData();
-    updateHeaderHeight(); // Initial call
-    window.addEventListener('resize', updateHeaderHeight);  // Update on resize
+    updateHeaderHeight();
+    window.addEventListener('resize', updateHeaderHeight);  
 
     return () => {
-      window.removeEventListener('resize', updateHeaderHeight);  // Clean up
+      window.removeEventListener('resize', updateHeaderHeight); 
     };
   }, []);
 
@@ -56,8 +56,6 @@ function Header() {
 
   const handleTitleClick = () => {
     const currentTime = Date.now();
-
-    // Reset count if the last click was more than 5 seconds ago
     if (currentTime - lastClickTime > 5000) {
       setClickCount(1);
     } else {
@@ -65,10 +63,8 @@ function Header() {
     }
 
     setLastClickTime(currentTime);
-
-    // If clicked 5 times within 5 seconds, redirect to /admin
     if (clickCount + 1 >= 5) {
-      navigate('/admin'); // Use navigate instead of history.push
+      navigate('/admin'); 
     }
   };
 
@@ -78,14 +74,15 @@ function Header() {
         <div className="container mx-auto px-4">
           <div className="flex flex-col sm:flex-row items-center justify-between h-auto sm:h-20 py-4 sm:py-0">
             {/* Logo and icons */}
-            <div className="flex flex-col sm:flex-row items-center space-x-2 sm:space-x-2 mb-4 sm:mb-0">
-              <div className="flex -space-x-1">
-                <Hammer className="h-8 w-8 text-amber-600" />
+            <div onClick={() => scrollToSection('hero')} className="flex flex-col sm:flex-row items-center space-x-2 sm:space-x-2 mb-4 sm:mb-0">
+              <div  className="flex -space-x-1" >
+                <Hammer  className="h-8 w-8 text-amber-600" />
                 <Palette className="h-8 w-8 text-amber-600" />
+                
               </div>
               <span
                 className="text-xl font-semibold cursor-pointer"
-                onClick={handleTitleClick} // Add onClick handler here
+                onClick={handleTitleClick}
               >
                 {contentBlocks.Title?.title}
               </span>
