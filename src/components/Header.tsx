@@ -1,13 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import { Hammer, Palette } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { useNavigate } from 'react-router-dom'; // Use useNavigate instead of useHistory
 
 function Header() {
   const [headerHeight, setHeaderHeight] = useState(0);
   const [contentBlocks, setContentBlocks] = useState<Record<string, { title: string; description: string }>>({});
-  const [pressTimeout, setPressTimeout] = useState<NodeJS.Timeout | null>(null);
+  
+  // States for click tracking
+  const [clickCount, setClickCount] = useState(0);
+  const [lastClickTime, setLastClickTime] = useState<number>(0);
+  
+  const navigate = useNavigate(); // For navigation
 
-  // Функция для вычисления высоты хедера
+  // Function to calculate header height
   const updateHeaderHeight = () => {
     const header = document.getElementById('header');
     if (header) {
@@ -15,7 +21,7 @@ function Header() {
     }
   };
 
-  // Загружаем контент из Supabase
+  // Loading content from Supabase
   useEffect(() => {
     const loadData = async () => {
       const { data: blocksData } = await supabase.from('content_blocks').select('*');
@@ -32,11 +38,11 @@ function Header() {
     };
 
     loadData();
-    updateHeaderHeight(); // Изначально
-    window.addEventListener('resize', updateHeaderHeight);  // Обновление при изменении размера
+    updateHeaderHeight(); // Initial call
+    window.addEventListener('resize', updateHeaderHeight);  // Update on resize
 
     return () => {
-      window.removeEventListener('resize', updateHeaderHeight);  // Убираем обработчик
+      window.removeEventListener('resize', updateHeaderHeight);  // Clean up
     };
   }, []);
 
@@ -48,20 +54,21 @@ function Header() {
     }
   };
 
-  // Navigate to the /admin page after 3 seconds
-  const navigateToAdmin = () => {
-    window.location.href = '/admin';  // Navigate to the admin page
-  };
+  const handleTitleClick = () => {
+    const currentTime = Date.now();
 
-  const handlePressStart = () => {
-    const timeout = setTimeout(navigateToAdmin, 3000);
-    setPressTimeout(timeout);
-  };
+    // Reset count if the last click was more than 5 seconds ago
+    if (currentTime - lastClickTime > 5000) {
+      setClickCount(1);
+    } else {
+      setClickCount(prevCount => prevCount + 1);
+    }
 
-  const handlePressEnd = () => {
-    if (pressTimeout) {
-      clearTimeout(pressTimeout);
-      setPressTimeout(null);
+    setLastClickTime(currentTime);
+
+    // If clicked 5 times within 5 seconds, redirect to /admin
+    if (clickCount + 1 >= 5) {
+      navigate('/admin'); // Use navigate instead of history.push
     }
   };
 
@@ -76,34 +83,51 @@ function Header() {
                 <Hammer className="h-8 w-8 text-amber-600" />
                 <Palette className="h-8 w-8 text-amber-600" />
               </div>
-              <span className="text-xl font-semibold">{contentBlocks.Title?.title}</span>
+              <span
+                className="text-xl font-semibold cursor-pointer"
+                onClick={handleTitleClick} // Add onClick handler here
+              >
+                {contentBlocks.Title?.title}
+              </span>
             </div>
 
             {/* Navigation */}
             <nav>
               <ul className="flex space-x-4 sm:space-x-8 flex-wrap sm:flex-nowrap">
-                {['menu1', 'menu2', 'menu3', 'menu4', 'menu5'].map((menu, index) => (
-                  <li key={index}>
-                    <button
-                      onClick={() => scrollToSection(menu)}
-                      onMouseDown={handlePressStart}
-                      onMouseUp={handlePressEnd}
-                      onMouseLeave={handlePressEnd}
-                      className="text-gray-600 hover:text-amber-600 transition-colors"
-                    >
-                      {contentBlocks[menu]?.title}
-                    </button>
-                  </li>
-                ))}
+                <li>
+                  <button onClick={() => scrollToSection('hero')} className="text-gray-600 hover:text-amber-600 transition-colors">
+                    {contentBlocks.menu1?.title}
+                  </button>
+                </li>
+                <li>
+                  <button onClick={() => scrollToSection('services')} className="text-gray-600 hover:text-amber-600 transition-colors">
+                    {contentBlocks.menu2?.title}
+                  </button>
+                </li>
+                <li>
+                  <button onClick={() => scrollToSection('process')} className="text-gray-600 hover:text-amber-600 transition-colors">
+                    {contentBlocks.menu3?.title}
+                  </button>
+                </li>
+                <li>
+                  <button onClick={() => scrollToSection('portfolio')} className="text-gray-600 hover:text-amber-600 transition-colors">
+                    {contentBlocks.menu4?.title}
+                  </button>
+                </li>
+                <li>
+                  <button onClick={() => scrollToSection('contact')} className="text-gray-600 hover:text-amber-600 transition-colors">
+                    {contentBlocks.menu5?.title}
+                  </button>
+                </li>
               </ul>
             </nav>
           </div>
         </div>
       </header>
 
-      {/* Контент, который будет прокручиваться с учетом отступа */}
+      {/* Content with scroll offset */}
       <div className="pt-[var(--header-height)]" style={{ '--header-height': `${headerHeight}px` }}>
-        {/* Ваш контент */}
+        {/* Your content */}
       </div>
     </>
   );
