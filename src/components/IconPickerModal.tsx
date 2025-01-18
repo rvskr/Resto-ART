@@ -1,8 +1,22 @@
-const IconPickerModal: React.FC<{ isOpen: boolean; onClose: () => void; onSelectIcon: (iconName: string) => void }> = ({
-    isOpen,
-    onClose,
-    onSelectIcon
-  }) => {
+// IconPickerModal.tsx
+const IconPickerModal: React.FC<{
+    isOpen: boolean;
+    onClose: () => void;
+    onSelectIcon: (iconName: string) => void;
+  }> = ({ isOpen, onClose, onSelectIcon }) => {
+    const [localIconFilter, setLocalIconFilter] = useState('');
+    const inputRef = useRef<HTMLInputElement>(null);
+  
+    const filteredIcons = iconNames.filter(name =>
+      name.toLowerCase().includes(localIconFilter.toLowerCase())
+    );
+  
+    useEffect(() => {
+      if (isOpen && inputRef.current) {
+        inputRef.current.focus();
+      }
+    }, [isOpen]);
+  
     if (!isOpen) return null;
   
     return (
@@ -15,10 +29,11 @@ const IconPickerModal: React.FC<{ isOpen: boolean; onClose: () => void; onSelect
             </button>
           </div>
           <input
+            ref={inputRef}
             type="text"
             placeholder="Поиск иконок..."
-            value={iconFilter}
-            onChange={(e) => setIconFilter(e.target.value)}
+            value={localIconFilter}
+            onChange={(e) => setLocalIconFilter(e.target.value)}
             className="border p-2 w-full mt-4 rounded"
           />
           <div className="grid grid-cols-6 gap-2 max-h-60 overflow-y-auto mt-4">
@@ -40,4 +55,3 @@ const IconPickerModal: React.FC<{ isOpen: boolean; onClose: () => void; onSelect
       </div>
     );
   };
-  

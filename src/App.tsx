@@ -56,7 +56,7 @@ function App() {
             <h1 className="text-5xl font-bold mb-6">{contentBlocks.hero?.title}</h1>
             <p className="text-xl mb-8">{contentBlocks.hero?.description}</p>
             <a href="#contact" className="inline-flex items-center bg-amber-600 hover:bg-amber-700 text-white px-6 py-3 rounded-lg transition-colors">
-              Обсудить проект
+            {contentBlocks.discussButton?.title }
               <ChevronRight className="ml-2 h-5 w-5" />
             </a>
           </div>
@@ -74,23 +74,23 @@ function App() {
           <div className="grid md:grid-cols-4 gap-8">
             {[{
               step: '01',
-              title: contentBlocks.process_step1?.title || 'Консультация',
-              description: contentBlocks.process_step1?.description || 'Обсуждаем ваши идеи и пожелания, изучаем историю предмета',
+              title: contentBlocks.process_step1?.title ,
+              description: contentBlocks.process_step1?.description ,
             },
             {
               step: '02',
-              title: contentBlocks.process_step2?.title || 'Разработка концепции',
-              description: contentBlocks.process_step2?.description || 'Создаем уникальный план реставрации и художественного оформления',
+              title: contentBlocks.process_step2?.title ,
+              description: contentBlocks.process_step2?.description ,
             },
             {
               step: '03',
-              title: contentBlocks.process_step3?.title || 'Ручная работа',
-              description: contentBlocks.process_step3?.description || 'Выполняем реставрацию и художественные работы вручную',
+              title: contentBlocks.process_step3?.title ,
+              description: contentBlocks.process_step3?.description,
             },
             {
               step: '04',
-              title: contentBlocks.process_step4?.title || 'Финальные штрихи',
-              description: contentBlocks.process_step4?.description || 'Доводим каждую деталь до совершенства',
+              title: contentBlocks.process_step4?.title ,
+              description: contentBlocks.process_step4?.description,
             }].map((phase, index) => (
               <div key={index} className="relative p-6 bg-white rounded-lg">
                 <span className="absolute -top-4 right-4 text-4xl font-bold text-amber-600/20">{phase.step}</span>
@@ -160,4 +160,4 @@ function App() {
   );
 }
 
-export default App;
+export default App; 

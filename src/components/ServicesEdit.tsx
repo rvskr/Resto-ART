@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from '../lib/supabase';
 import * as LucideIcons from 'lucide-react';
 import { Pencil, Trash2, Plus, Save, Check } from 'lucide-react';
@@ -9,6 +9,79 @@ const iconNames = Array.from(new Set(
     .filter(key => key !== 'createLucideIcon' && !key.startsWith('Lucide'))
     .map(name => name.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase())
 ));
+
+const DynamicIcon: React.FC<{ iconName: string; className?: string }> = ({ iconName, className }) => {
+  const pascalCaseName = iconName
+    .split('-')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join('');
+
+  const IconComponent = (LucideIcons as Record<string, React.FC<any>>)[pascalCaseName];
+
+  if (!IconComponent) return null;
+  return <IconComponent className={className} />;
+};
+
+const IconPickerModal: React.FC<{
+  isOpen: boolean;
+  onClose: () => void;
+  onSelectIcon: (iconName: string) => void;
+}> = ({
+  isOpen,
+  onClose,
+  onSelectIcon
+}) => {
+  const [localIconFilter, setLocalIconFilter] = useState('');
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const filteredIcons = iconNames.filter(name =>
+    name.toLowerCase().includes(localIconFilter.toLowerCase())
+  );
+
+  useEffect(() => {
+    if (isOpen && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [isOpen]);
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+      <div className="bg-white p-6 rounded-lg w-3/4 max-w-2xl">
+        <div className="flex justify-between items-center">
+          <h3 className="text-xl font-semibold">Выбор иконки</h3>
+          <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
+            X
+          </button>
+        </div>
+        <input
+          ref={inputRef}
+          type="text"
+          placeholder="Поиск иконок..."
+          value={localIconFilter}
+          onChange={(e) => setLocalIconFilter(e.target.value)}
+          className="border p-2 w-full mt-4 rounded"
+        />
+        <div className="grid grid-cols-6 gap-2 max-h-60 overflow-y-auto mt-4">
+          {filteredIcons.map((iconName, index) => (
+            <button
+              key={`${iconName}-${index}`}
+              onClick={() => {
+                onSelectIcon(iconName);
+                onClose();
+              }}
+              className="p-2 hover:bg-gray-100 rounded flex items-center justify-center"
+              title={iconName}
+            >
+              <DynamicIcon iconName={iconName} className="w-5 h-5" />
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
 
 type Service = {
   id: number;
@@ -21,11 +94,9 @@ const ServicesEditor: React.FC = () => {
   const [services, setServices] = useState<Service[]>([]);
   const [newService, setNewService] = useState({ title: '', description: '', icon: 'circle' });
   const [isIconPickerOpen, setIsIconPickerOpen] = useState(false);
-  const [iconFilter, setIconFilter] = useState('');
-  const [isEditing, setIsEditing] = useState(false); // New state to track editing mode
-  const [editingServiceId, setEditingServiceId] = useState<number | null>(null); // ID of the service being edited
+  const [isEditing, setIsEditing] = useState(false);
+  const [editingServiceId, setEditingServiceId] = useState<number | null>(null);
 
-  // Fetch services from Supabase
   useEffect(() => {
     const fetchServices = async () => {
       const { data, error } = await supabase
@@ -49,7 +120,6 @@ const ServicesEditor: React.FC = () => {
     }
 
     if (isEditing && editingServiceId) {
-      // Update service
       const { error } = await supabase
         .from('services')
         .update(newService)
@@ -66,7 +136,6 @@ const ServicesEditor: React.FC = () => {
         setNewService({ title: '', description: '', icon: 'circle' });
       }
     } else {
-      // Add new service
       const { error } = await supabase
         .from('services')
         .insert([newService]);
@@ -99,67 +168,8 @@ const ServicesEditor: React.FC = () => {
     setNewService(service);
   };
 
-  const DynamicIcon: React.FC<{ iconName: string; className?: string }> = ({ iconName, className }) => {
-    const pascalCaseName = iconName
-      .split('-')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-      .join('');
-
-    const IconComponent = (LucideIcons as Record<string, React.FC<any>>)[pascalCaseName];
-
-    if (!IconComponent) return null;
-    return <IconComponent className={className} />;
-  };
-
-  const filteredIcons = iconNames.filter(name => 
-    name.toLowerCase().includes(iconFilter.toLowerCase())
-  );
-
   const handleIconSelection = (iconName: string) => {
     setNewService({ ...newService, icon: iconName });
-  };
-
-  const IconPickerModal: React.FC<{ isOpen: boolean; onClose: () => void; onSelectIcon: (iconName: string) => void }> = ({
-    isOpen,
-    onClose,
-    onSelectIcon
-  }) => {
-    if (!isOpen) return null;
-
-    return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-        <div className="bg-white p-6 rounded-lg w-3/4 max-w-2xl">
-          <div className="flex justify-between items-center">
-            <h3 className="text-xl font-semibold">Выбор иконки</h3>
-            <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
-              X
-            </button>
-          </div>
-          <input
-            type="text"
-            placeholder="Поиск иконок..."
-            value={iconFilter}
-            onChange={(e) => setIconFilter(e.target.value)}
-            className="border p-2 w-full mt-4 rounded"
-          />
-          <div className="grid grid-cols-6 gap-2 max-h-60 overflow-y-auto mt-4">
-            {filteredIcons.map((iconName, index) => (
-              <button
-                key={`${iconName}-${index}`}
-                onClick={() => {
-                  onSelectIcon(iconName);
-                  onClose();
-                }}
-                className="p-2 hover:bg-gray-100 rounded flex items-center justify-center"
-                title={iconName}
-              >
-                <DynamicIcon iconName={iconName} className="w-5 h-5" />
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
-    );
   };
 
   return (
@@ -191,21 +201,21 @@ const ServicesEditor: React.FC = () => {
             </button>
           </div>
           <button 
-    onClick={handleAddOrUpdateService} 
-    className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 transition-colors w-full md:w-auto flex items-center gap-2"
->
-    {isEditing ? (
-        <>
-            <Check className="h-4 w-4 text-green-500" />
-            <span>Обновить</span>
-        </>
-    ) : (
-        <>
-            <Plus className="h-4 w-4" />
-            <span>Добавить сервис</span>
-        </>
-    )}
-</button>
+            onClick={handleAddOrUpdateService} 
+            className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 transition-colors w-full md:w-auto flex items-center gap-2"
+          >
+            {isEditing ? (
+              <>
+                <Check className="h-4 w-4 text-green-500" />
+                <span>Обновить</span>
+              </>
+            ) : (
+              <>
+                <Plus className="h-4 w-4" />
+                <span>Добавить сервис</span>
+              </>
+            )}
+          </button>
         </div>
       </div>
 
@@ -223,12 +233,9 @@ const ServicesEditor: React.FC = () => {
               <button
                 onClick={() => handleEditService(service)}
                 className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg"
-                >
-                  <Pencil className="h-4 w-4" />
-                </button>
-
-
-
+              >
+                <Pencil className="h-4 w-4" />
+              </button>
               <button
                 onClick={() => handleDeleteService(service.id)}
                 className="bg-red-500 text-white p-2 rounded hover:bg-red-600 transition-colors"

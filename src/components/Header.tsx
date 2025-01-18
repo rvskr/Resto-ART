@@ -58,7 +58,7 @@ function Header() {
                 <Hammer className="h-8 w-8 text-amber-600" />
                 <Palette className="h-8 w-8 text-amber-600" />
               </div>
-              <span className="text-xl font-semibold">{contentBlocks.header?.title || 'РестоАрт'}</span>
+              <span className="text-xl font-semibold">{contentBlocks.Title?.title}</span>
             </div>
 
             {/* Navigation */}
@@ -66,27 +66,27 @@ function Header() {
               <ul className="flex space-x-4 sm:space-x-8 flex-wrap sm:flex-nowrap">
                 <li>
                   <button onClick={() => scrollToSection('hero')} className="text-gray-600 hover:text-amber-600 transition-colors">
-                    {contentBlocks.menu1?.title || 'Меню 1'}
+                    {contentBlocks.menu1?.title}
                   </button>
                 </li>
                 <li>
                   <button onClick={() => scrollToSection('services')} className="text-gray-600 hover:text-amber-600 transition-colors">
-                    {contentBlocks.menu2?.title || 'Меню 2'}
+                    {contentBlocks.menu2?.title}
                   </button>
                 </li>
                 <li>
                   <button onClick={() => scrollToSection('process')} className="text-gray-600 hover:text-amber-600 transition-colors">
-                    {contentBlocks.menu3?.title || 'Меню 3'}
+                    {contentBlocks.menu3?.title}
                   </button>
                 </li>
                 <li>
                   <button onClick={() => scrollToSection('portfolio')} className="text-gray-600 hover:text-amber-600 transition-colors">
-                    {contentBlocks.menu4?.title || 'Меню 4'}
+                    {contentBlocks.menu4?.title}
                   </button>
                 </li>
                 <li>
                   <button onClick={() => scrollToSection('contact')} className="text-gray-600 hover:text-amber-600 transition-colors">
-                    {contentBlocks.menu5?.title || 'Меню 5'}
+                    {contentBlocks.menu5?.title}
                   </button>
                 </li>
               </ul>

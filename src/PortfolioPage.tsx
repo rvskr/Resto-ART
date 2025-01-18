@@ -1,6 +1,5 @@
-// PortfolioPage.tsx
 import React, { useState, useEffect } from 'react';
-import { ChevronRight, Phone, Mail } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { supabase } from './lib/supabase';
 import { Case } from './types';
@@ -11,19 +10,33 @@ import ContactForm from './components/ContactForm';
 const PortfolioPage = () => {
   const [cases, setCases] = useState<Case[]>([]);
   const [selectedCase, setSelectedCase] = useState<Case | null>(null);
-  const [contactInfo, setContactInfo] = useState({ phone: '', email: '' });
+  const [contentBlocks, setContentBlocks] = useState<Record<string, { title: string; description: string }>>({});
+
+  useEffect(() => {
+    // Загружаем блоки контента
+    const loadContentBlocks = async () => {
+      const { data: blocksData } = await supabase.from('content_blocks').select('*');
+      if (blocksData) {
+        const blocks = blocksData.reduce((acc, block) => ({
+          ...acc,
+          [block.name]: {
+            title: block.title,
+            description: block.description,
+          }
+        }), {});
+        setContentBlocks(blocks);
+      }
+    };
+    loadContentBlocks();
+  }, []);
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    const loadData = async () => {
+    const loadCases = async () => {
       const { data: casesData } = await supabase.from('cases').select('*').order('created_at', { ascending: false });
       if (casesData) setCases(casesData);
-
-      const { data: contactData } = await supabase.from('contact_info').select('*').single();
-      if (contactData) setContactInfo(contactData);
     };
-
-    loadData();
+    loadCases();
   }, []);
 
   return (
@@ -34,10 +47,10 @@ const PortfolioPage = () => {
         {/* Back Button */}
         <Link to="/" className="inline-flex items-center text-amber-600 hover:text-amber-700 mb-6">
           <ChevronRight className="transform rotate-180 h-5 w-5 mr-2" />
-          Назад
+          {contentBlocks.backButton?.title}
         </Link>
 
-        <h2 className="text-3xl font-bold text-center mb-4">Наши работы</h2>
+        <h2 className="text-3xl font-bold text-center mb-4">{contentBlocks.ourWorks?.title}</h2>
         <div className="grid md:grid-cols-2 gap-8">
           {cases.map((case_) => (
             <div
@@ -57,7 +70,7 @@ const PortfolioPage = () => {
                 <h3 className="text-xl font-semibold mb-2">{case_.title}</h3>
                 <p className="text-gray-600">{case_.description}</p>
                 <div className="mt-4 flex items-center text-amber-600">
-                  <span>Подробнее</span>
+                  <span>{contentBlocks.details?.title}</span>
                   <ChevronRight className="ml-1 h-4 w-4" />
                 </div>
               </div>
