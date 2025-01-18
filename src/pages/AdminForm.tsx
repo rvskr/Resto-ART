@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { useNavigate } from 'react-router-dom';
 import { Trash2 } from 'lucide-react';
+import AdminHeader from '../components/AdminHeader';
 
 interface ContactForm {
   id: string;
@@ -60,15 +61,6 @@ export default function AdminForm() {
       setContactForms(contactForms.filter((form) => form.id !== id));
     } else {
       console.error('Error deleting contact form:', error);
-    }
-  };
-
-  const handleLogout = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      console.error('Error signing out:', error);
-    } else {
-      navigate('/admin/login');
     }
   };
 
@@ -134,20 +126,10 @@ export default function AdminForm() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="min-h-screen bg-stone-50 p-6">
       <div className="max-w-7xl mx-auto">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-xl font-bold">Все заявки</h1>
-          <div className="space-x-4">
-            <button onClick={handleLogout} className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">
-              Выйти
-            </button>
-            <button onClick={() => navigate('/admin')} className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-              Панель администратора
-            </button>
-          </div>
-        </div>
-
+        <AdminHeader />
+        
         <div className="mb-4 flex justify-center space-x-4">
           <button
             onClick={() => setSelectedTab('new')}

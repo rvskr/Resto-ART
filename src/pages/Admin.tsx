@@ -5,8 +5,7 @@ import { Pencil, Trash2, Plus, Save, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import ContactEdit from '../components/ContactEdit';
 import ServicesEdit from '../components/ServicesEdit';
-
-
+import AdminHeader from '../components/AdminHeader';
 
 interface Case {
   id: string;
@@ -66,22 +65,15 @@ export default function Admin() {
   };
 
   const loadData = async () => {
-    const { data: casesData } = await supabase
-      .from('cases')
-      .select('*')
-      .order('created_at', { ascending: false });
-    if (casesData) setCases(casesData);
+    const [casesResult, blocksResult, contactResult] = await Promise.all([
+      supabase.from('cases').select('*').order('created_at', { ascending: false }),
+      supabase.from('content_blocks').select('*'),
+      supabase.from('contact_info').select('*').single()
+    ]);
 
-    const { data: blocksData } = await supabase
-      .from('content_blocks')
-      .select('*');
-    if (blocksData) setContentBlocks(blocksData);
-
-    const { data: contactData } = await supabase
-      .from('contact_info')
-      .select('*')
-      .single();
-    if (contactData) setContactInfo(contactData);
+    if (casesResult.data) setCases(casesResult.data);
+    if (blocksResult.data) setContentBlocks(blocksResult.data);
+    if (contactResult.data) setContactInfo(contactResult.data);
   };
 
   const uploadImage = async (file: File, path: string) => {
@@ -107,19 +99,13 @@ export default function Admin() {
       return;
     }
 
-    let beforeImageUrl = newCase.before_image;
-    let afterImageUrl = newCase.after_image;
+    const beforeImageUrl = beforeImageFile 
+      ? await uploadImage(beforeImageFile, `cases/before/${Date.now()}_${beforeImageFile.name}`)
+      : newCase.before_image;
 
-    // Upload images if provided
-    if (beforeImageFile) {
-      const beforePath = `cases/before/${Date.now()}_${beforeImageFile.name}`;
-      beforeImageUrl = await uploadImage(beforeImageFile, beforePath);
-    }
-
-    if (afterImageFile) {
-      const afterPath = `cases/after/${Date.now()}_${afterImageFile.name}`;
-      afterImageUrl = await uploadImage(afterImageFile, afterPath);
-    }
+    const afterImageUrl = afterImageFile
+      ? await uploadImage(afterImageFile, `cases/after/${Date.now()}_${afterImageFile.name}`)
+      : newCase.after_image;
 
     const caseToInsert = {
       title: newCase.title,
@@ -131,29 +117,23 @@ export default function Admin() {
       category: newCase.category,
     };
 
-    if (newCase.id) {
-      const { error } = await supabase
-        .from('cases')
-        .update(caseToInsert)
-        .eq('id', newCase.id);
+    const { data, error } = await supabase
+      .from('cases')
+      [newCase.id ? 'update' : 'insert'](caseToInsert)
+      [newCase.id ? 'eq' : 'select']('id', newCase.id);
 
-      if (!error) {
-        setCases(cases.map(c => c.id === newCase.id ? newCase : c));
-      }
-    } else {
-      const { data, error } = await supabase
-        .from('cases')
-        .insert([caseToInsert])
-        .select()
-        .single();
-
-      if (error) {
-        console.error('Error inserting case:', error);
-      } else {
-        setCases([data, ...cases]);
+    if (!error) {
+      if (newCase.id) {
+        setCases(cases.map(c => c.id === newCase.id ? { ...newCase, ...caseToInsert } : c));
+      } else if (data) {
+        setCases([data[0], ...cases]);
       }
     }
 
+    resetCaseForm();
+  };
+
+  const resetCaseForm = () => {
     setNewCaseFormVisible(false);
     setNewCase({
       id: '',
@@ -188,14 +168,8 @@ export default function Admin() {
 
     if (!error) {
       setContentBlocks(contentBlocks.map(b => b.id === block.id ? block : b));
+      setEditingBlock(null);
     }
-    setEditingBlock(null);
-  };
-
-
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    navigate('/admin/login');
   };
 
   const handleEditCase = (caseToEdit: Case) => {
@@ -203,130 +177,111 @@ export default function Admin() {
     setNewCaseFormVisible(true);
   };
 
-  const handleEditBlock = (block: ContentBlock) => {
-    setEditingBlock(block);
-  };
-
-
   return (
     <div className="min-h-screen bg-stone-50 p-6">
       <div className="max-w-6xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-2xl font-bold">Админ-панель</h1>
-          <div className="space-x-4">
-            <button
-              onClick={handleLogout}
-              className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg transition-colors"
-            >
-              Выйти
-            </button>
-            <Link to="/admin/form">
-              <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
-                Показать Заявки
-              </button>
-            </Link>
-          </div>
-        </div>
+        <AdminHeader />
+        
         <section className="bg-white rounded-lg p-6 mb-8 shadow-sm">
           <h2 className="text-xl font-semibold mb-4">Работы</h2>
 
           <button
             onClick={() => setNewCaseFormVisible(true)}
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg mb-4 hover:bg-blue-700"
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg mb-4 hover:bg-blue-700 flex items-center gap-2"
           >
             <Plus className="h-4 w-4" /> Добавить работу
           </button>
 
           {newCaseFormVisible && (
             <div className="border rounded-lg p-4 mb-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Название
-                </label>
-                <input
-                  type="text"
-                  value={newCase.title}
-                  onChange={e => setNewCase({ ...newCase, title: e.target.value })}
-                  className="w-full px-4 py-2 border rounded-lg"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Описание
-                </label>
-                <textarea
-                  value={newCase.description}
-                  onChange={e => setNewCase({ ...newCase, description: e.target.value })}
-                  className="w-full px-4 py-2 border rounded-lg"
-                  rows={3}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Процесс
-                </label>
-                <input
-                  type="text"
-                  value={newCase.process.join(', ')}
-                  onChange={e =>
-                    setNewCase({ ...newCase, process: e.target.value.split(',') })
-                  }
-                  className="w-full px-4 py-2 border rounded-lg"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Длительность
-                </label>
-                <input
-                  type="text"
-                  value={newCase.duration}
-                  onChange={e => setNewCase({ ...newCase, duration: e.target.value })}
-                  className="w-full px-4 py-2 border rounded-lg"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Категория
-                </label>
-                <input
-                  type="text"
-                  value={newCase.category}
-                  onChange={e => setNewCase({ ...newCase, category: e.target.value })}
-                  className="w-full px-4 py-2 border rounded-lg"
-                />
-              </div>
-              <div className="flex space-x-4">
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Изображение до</label>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Название
+                  </label>
                   <input
-                    type="file"
-                    onChange={e => setBeforeImageFile(e.target.files?.[0] || null)}
+                    type="text"
+                    value={newCase.title}
+                    onChange={e => setNewCase({ ...newCase, title: e.target.value })}
                     className="w-full px-4 py-2 border rounded-lg"
                   />
                 </div>
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Изображение после</label>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Описание
+                  </label>
+                  <textarea
+                    value={newCase.description}
+                    onChange={e => setNewCase({ ...newCase, description: e.target.value })}
+                    className="w-full px-4 py-2 border rounded-lg"
+                    rows={3}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Процесс
+                  </label>
                   <input
-                    type="file"
-                    onChange={e => setAfterImageFile(e.target.files?.[0] || null)}
+                    type="text"
+                    value={newCase.process.join(', ')}
+                    onChange={e => setNewCase({ ...newCase, process: e.target.value.split(',') })}
                     className="w-full px-4 py-2 border rounded-lg"
                   />
                 </div>
-              </div>
-              <div className="flex space-x-2">
-                <button
-                  onClick={handleSaveCase}
-                  className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
-                >
-                  Сохранить
-                </button>
-                <button
-                  onClick={() => setNewCaseFormVisible(false)}
-                  className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg"
-                >
-                  Отмена
-                </button>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Длительность
+                  </label>
+                  <input
+                    type="text"
+                    value={newCase.duration}
+                    onChange={e => setNewCase({ ...newCase, duration: e.target.value })}
+                    className="w-full px-4 py-2 border rounded-lg"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Категория
+                  </label>
+                  <input
+                    type="text"
+                    value={newCase.category}
+                    onChange={e => setNewCase({ ...newCase, category: e.target.value })}
+                    className="w-full px-4 py-2 border rounded-lg"
+                  />
+                </div>
+                <div className="flex space-x-4">
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Изображение до</label>
+                    <input
+                      type="file"
+                      onChange={e => setBeforeImageFile(e.target.files?.[0] || null)}
+                      className="w-full px-4 py-2 border rounded-lg"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Изображение после</label>
+                    <input
+                      type="file"
+                      onChange={e => setAfterImageFile(e.target.files?.[0] || null)}
+                      className="w-full px-4 py-2 border rounded-lg"
+                    />
+                  </div>
+                </div>
+                <div className="flex space-x-2">
+                  <button
+                    onClick={handleSaveCase}
+                    className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
+                  >
+                    Сохранить
+                  </button>
+                  <button
+                    onClick={() => setNewCaseFormVisible(false)}
+                    className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg"
+                  >
+                    Отмена
+                  </button>
+                </div>
               </div>
             </div>
           )}
@@ -341,13 +296,13 @@ export default function Admin() {
                 <div className="flex space-x-2">
                   <button
                     onClick={() => handleEditCase(c)}
-                    className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg"
+                    className="bg-gray-200 hover:bg-gray-300 text-gray-800 p-2 rounded-lg"
                   >
                     <Pencil className="h-4 w-4" />
                   </button>
                   <button
                     onClick={() => handleDeleteCase(c.id)}
-                    className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg"
+                    className="bg-red-600 hover:bg-red-700 text-white p-2 rounded-lg"
                   >
                     <Trash2 className="h-4 w-4" />
                   </button>
@@ -356,9 +311,11 @@ export default function Admin() {
             </div>
           ))}
         </section>
+
         <section className="bg-white rounded-lg p-6 mb-8 shadow-sm">
-                <ServicesEdit />
-          </section>
+          <ServicesEdit />
+        </section>
+
         <section className="bg-white rounded-lg p-6 mb-8 shadow-sm">
           <h2 className="text-xl font-semibold mb-4">Блоки контента</h2>
           <div className="space-y-4">
@@ -413,7 +370,7 @@ export default function Admin() {
                         <h4 className="text-lg">{block.title}</h4>
                       </div>
                       <button
-                        onClick={() => handleEditBlock(block)}
+                        onClick={() => setEditingBlock(block)}
                         className="p-2 hover:bg-gray-100 rounded-lg"
                       >
                         <Pencil className="h-4 w-4" />
@@ -426,10 +383,9 @@ export default function Admin() {
             ))}
           </div>
         </section>
-        <div>
-      <ContactEdit />
-    </div>
+
+        <ContactEdit />
       </div>
     </div>
   );
-} 
+}

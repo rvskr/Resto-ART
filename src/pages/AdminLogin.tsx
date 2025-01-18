@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { useNavigate } from 'react-router-dom';
+import AdminHeader from '../components/AdminHeader';
 
 export default function AdminLogin() {
   const [email, setEmail] = useState('');
@@ -24,6 +25,9 @@ export default function AdminLogin() {
   };
 
   return (
+    <div className="min-h-screen bg-stone-50 p-6">
+      <div className="max-w-7xl mx-auto">
+        <AdminHeader />
     <div className="min-h-screen bg-stone-50 flex items-center justify-center">
       <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
         <h1 className="text-2xl font-bold mb-6 text-center">Вход в админ-панель</h1>
@@ -71,6 +75,8 @@ export default function AdminLogin() {
           </button>
         </form>
       </div>
+      </div>
+    </div>
     </div>
   );
 }

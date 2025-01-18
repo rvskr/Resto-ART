@@ -5,6 +5,7 @@ import { supabase } from '../lib/supabase';
 function Header() {
   const [headerHeight, setHeaderHeight] = useState(0);
   const [contentBlocks, setContentBlocks] = useState<Record<string, { title: string; description: string }>>({});
+  const [pressTimeout, setPressTimeout] = useState<NodeJS.Timeout | null>(null);
 
   // Функция для вычисления высоты хедера
   const updateHeaderHeight = () => {
@@ -47,6 +48,23 @@ function Header() {
     }
   };
 
+  // Navigate to the /admin page after 3 seconds
+  const navigateToAdmin = () => {
+    window.location.href = '/admin';  // Navigate to the admin page
+  };
+
+  const handlePressStart = () => {
+    const timeout = setTimeout(navigateToAdmin, 3000);
+    setPressTimeout(timeout);
+  };
+
+  const handlePressEnd = () => {
+    if (pressTimeout) {
+      clearTimeout(pressTimeout);
+      setPressTimeout(null);
+    }
+  };
+
   return (
     <>
       <header id="header" className="fixed top-0 left-0 right-0 bg-white/90 backdrop-blur-sm z-50 shadow-sm">
@@ -64,31 +82,19 @@ function Header() {
             {/* Navigation */}
             <nav>
               <ul className="flex space-x-4 sm:space-x-8 flex-wrap sm:flex-nowrap">
-                <li>
-                  <button onClick={() => scrollToSection('hero')} className="text-gray-600 hover:text-amber-600 transition-colors">
-                    {contentBlocks.menu1?.title}
-                  </button>
-                </li>
-                <li>
-                  <button onClick={() => scrollToSection('services')} className="text-gray-600 hover:text-amber-600 transition-colors">
-                    {contentBlocks.menu2?.title}
-                  </button>
-                </li>
-                <li>
-                  <button onClick={() => scrollToSection('process')} className="text-gray-600 hover:text-amber-600 transition-colors">
-                    {contentBlocks.menu3?.title}
-                  </button>
-                </li>
-                <li>
-                  <button onClick={() => scrollToSection('portfolio')} className="text-gray-600 hover:text-amber-600 transition-colors">
-                    {contentBlocks.menu4?.title}
-                  </button>
-                </li>
-                <li>
-                  <button onClick={() => scrollToSection('contact')} className="text-gray-600 hover:text-amber-600 transition-colors">
-                    {contentBlocks.menu5?.title}
-                  </button>
-                </li>
+                {['menu1', 'menu2', 'menu3', 'menu4', 'menu5'].map((menu, index) => (
+                  <li key={index}>
+                    <button
+                      onClick={() => scrollToSection(menu)}
+                      onMouseDown={handlePressStart}
+                      onMouseUp={handlePressEnd}
+                      onMouseLeave={handlePressEnd}
+                      className="text-gray-600 hover:text-amber-600 transition-colors"
+                    >
+                      {contentBlocks[menu]?.title}
+                    </button>
+                  </li>
+                ))}
               </ul>
             </nav>
           </div>
