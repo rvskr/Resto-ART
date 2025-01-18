@@ -2,14 +2,6 @@
 export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
-    extend: {},
-  },
-  plugins: [],
-};
-
-// tailwind.config.js
-module.exports = {
-  theme: {
     extend: {
       fontSize: {
         'base': 'clamp(1rem, 2vw, 1.5rem)', // Динамичный размер для обычного текста
@@ -19,4 +11,4 @@ module.exports = {
     },
   },
   plugins: [],
-}
+};
