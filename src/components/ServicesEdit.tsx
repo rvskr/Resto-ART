@@ -191,11 +191,21 @@ const ServicesEditor: React.FC = () => {
             </button>
           </div>
           <button 
-            onClick={handleAddOrUpdateService} 
-            className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 transition-colors w-full md:w-auto"
-          >
-            {isEditing ?  <Check  className="bg-green-500" /> : <Plus className="h-4 w-4" />}
-          </button>
+    onClick={handleAddOrUpdateService} 
+    className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 transition-colors w-full md:w-auto flex items-center gap-2"
+>
+    {isEditing ? (
+        <>
+            <Check className="h-4 w-4 text-green-500" />
+            <span>Обновить</span>
+        </>
+    ) : (
+        <>
+            <Plus className="h-4 w-4" />
+            <span>Добавить сервис</span>
+        </>
+    )}
+</button>
         </div>
       </div>
 
