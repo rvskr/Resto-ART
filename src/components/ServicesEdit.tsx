@@ -167,12 +167,10 @@ const ServicesEditor: React.FC = () => {
 
   const handleEditService = (service: Service) => {
     if (isEditing && editingServiceId === service.id) {
-      // If the same service is being edited, cancel the edit mode
       setIsEditing(false);
       setEditingServiceId(null);
       setNewService({ title: '', description: '', icon: 'circle' });
     } else {
-      // Otherwise, start editing this service
       setIsEditing(true);
       setEditingServiceId(service.id);
       setNewService(service);
