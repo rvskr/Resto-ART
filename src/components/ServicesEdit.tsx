@@ -150,6 +150,9 @@ const ServicesEditor: React.FC = () => {
   };
 
   const handleDeleteService = async (id: number) => {
+    const confirmDelete = window.confirm('Вы уверены, что хотите удалить этот сервис?');
+    if (!confirmDelete) return;
+
     const { error } = await supabase
       .from('services')
       .delete()
@@ -163,20 +166,29 @@ const ServicesEditor: React.FC = () => {
   };
 
   const handleEditService = (service: Service) => {
-    setIsEditing(true);
-    setEditingServiceId(service.id);
-    setNewService(service);
+    if (isEditing && editingServiceId === service.id) {
+      // If the same service is being edited, cancel the edit mode
+      setIsEditing(false);
+      setEditingServiceId(null);
+      setNewService({ title: '', description: '', icon: 'circle' });
+    } else {
+      // Otherwise, start editing this service
+      setIsEditing(true);
+      setEditingServiceId(service.id);
+      setNewService(service);
+    }
   };
+  
 
   const handleIconSelection = (iconName: string) => {
     setNewService({ ...newService, icon: iconName });
   };
 
   return (
-    <div className="container mx-auto p-8">
+    <div className="container mx-auto p-1">
       <h2 className="text-3xl font-bold mb-4">Редактор Сервисов</h2>
-      <div className="mb-4 space-y-4">
-        <div className="flex flex-col md:flex-row gap-2 md:gap-4">
+      <div className="mb-2 space-y-2">
+        <div className="flex flex-col md:flex-row gap-2 md:gap-2">
           <input
             type="text"
             value={newService.title}
@@ -222,7 +234,7 @@ const ServicesEditor: React.FC = () => {
       <ul className="space-y-4">
         {services.map(service => (
           <li key={service.id} className="p-4 border rounded-lg flex justify-between items-center">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
               <DynamicIcon iconName={service.icon} className="w-6 h-6" />
               <div>
                 <p className="font-bold">{service.title}</p>
@@ -256,4 +268,4 @@ const ServicesEditor: React.FC = () => {
   );
 };
 
-export default ServicesEditor;
+export default ServicesEditor;  
