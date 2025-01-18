@@ -40,6 +40,7 @@ function App() {
     const { data: casesData } = await supabase.from('cases').select('*').order('created_at', { ascending: false });
     if (casesData) setCases(casesData);
   };
+  
 
   return (
     <div className="min-h-screen bg-stone-50">
@@ -47,39 +48,32 @@ function App() {
 
       {/* Hero Section */}
       <section
-        id="hero"
-        className="relative h-[80vh] bg-cover bg-center overflow-hidden"
-        style={{
-          backgroundImage: backgroundImage
-            ? `url(${backgroundImage})`
-            : 'url(https://cdn.pixabay.com/photo/2016/04/18/13/53/room-1336497_1280.jpg)',
-        }}
+  id="hero"
+  className="relative h-[80vh] bg-cover bg-center overflow-hidden"
+  style={{
+    backgroundImage: backgroundImage
+      ? `url(${backgroundImage})`
+      : 'url(https://cdn.pixabay.com/photo/2016/04/18/13/53/room-1336497_1280.jpg)',
+  }}
+>
+  <div className="absolute inset-0 bg-black/50" />
+  <div className="relative container mx-auto px-4 h-full flex items-center justify-center">
+    <div className="max-w-2xl text-white">
+      <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-6 break-words">{contentBlocks.hero?.title}</h1>
+      <p className="text-xl mb-8">{contentBlocks.hero?.description}</p>
+      <a
+        href="#contact"
+        className="inline-flex items-center bg-amber-600 hover:bg-amber-700 text-white px-6 py-3 rounded-lg transition-colors"
       >
-        <div className="absolute inset-0 bg-black/50" />
-        <div className="relative container mx-auto px-4 h-full flex items-center justify-center">
-          <div className="max-w-2xl text-white">
-            <h1
-              className="font-bold mb-6 text-white"
-              style={{
-                fontSize: 'clamp(2rem, 8vw, 6rem)',
-              }}
-            >
-              {contentBlocks.hero?.title}
-            </h1>
-            <p className="text-xl mb-8">{contentBlocks.hero?.description}</p>
-            <a
-              href="#contact"
-              className="inline-flex items-center bg-amber-600 hover:bg-amber-700 text-white px-6 py-3 rounded-lg transition-colors"
-            >
-              {contentBlocks.discussButton?.title}
-              <ChevronRight className="ml-2 h-5 w-5" />
-            </a>
-          </div>
-        </div>
-      </section>
+        {contentBlocks.discussButton?.title}
+        <ChevronRight className="ml-2 h-5 w-5" />
+      </a>
+    </div>
+  </div>
+</section>
 
       {/* Services Section */}
-      <ServicesSection contentBlocks={contentBlocks} />
+      <ServicesSection contentBlocks={contentBlocks} /> {/* Используем компонент ServicesSection */}
 
       {/* Process Section */}
       <section id="process" className="py-20 bg-stone-100">
@@ -175,4 +169,4 @@ function App() {
   );
 }
 
-export default App;
+export default App; 
