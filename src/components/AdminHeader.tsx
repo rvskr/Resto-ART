@@ -26,7 +26,7 @@ const AdminHeader = () => {
     <div className="flex flex-col sm:flex-row justify-between items-center mb-8 px-4 sm:px-8 py-4 sm:py-6">
       {/* Left Side: Title and Navigation */}
       <div className="flex items-center justify-between w-full sm:w-auto space-x-6">
-        <h1 className="text-2xl font-bold text-center sm:text-left">Админ-панель</h1>
+        <h1 className="text-xl font-bold text-center sm:text-left">RestoArt</h1>
         <nav className="flex space-x-4">
           <button 
             onClick={handleNavigateToAdmin} 
