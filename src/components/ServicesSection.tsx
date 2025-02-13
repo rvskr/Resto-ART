@@ -18,11 +18,24 @@ const ServicesSection: React.FC<ServicesSectionProps> = ({ contentBlocks }) => {
 
   const fetchServices = async () => {
     try {
+      const cachedServices = localStorage.getItem('services');
+      const cacheTimestamp = localStorage.getItem('servicesTimestamp');
+      const CACHE_DURATION = 1000 * 60 * 5; // 5 минут
+
+      const isStale = !cacheTimestamp || Date.now() - Number(cacheTimestamp) > CACHE_DURATION;
+
+      if (!isStale && cachedServices) {
+        setServices(JSON.parse(cachedServices));
+        return;
+      }
+
       const { data, error } = await supabase.from('services').select('*');
       if (error) {
         throw error;
       }
       setServices(data || []);
+      localStorage.setItem('services', JSON.stringify(data));
+      localStorage.setItem('servicesTimestamp', Date.now().toString());
     } catch (error) {
       console.error('Ошибка при загрузке сервисов:', error);
     }

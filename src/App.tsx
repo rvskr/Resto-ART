@@ -17,6 +17,20 @@ function App() {
   }, []);
 
   const loadData = async () => {
+    // Проверяем данные в localStorage
+    const cachedBlocks = localStorage.getItem('contentBlocks');
+    const cachedCases = localStorage.getItem('cases');
+    const cacheTimestamp = localStorage.getItem('cacheTimestamp');
+    const CACHE_DURATION = 1000 * 60 * 5; // 5 минут
+
+    const isStale = !cacheTimestamp || Date.now() - Number(cacheTimestamp) > CACHE_DURATION;
+
+    if (!isStale && cachedBlocks && cachedCases) {
+      setContentBlocks(JSON.parse(cachedBlocks));
+      setCases(JSON.parse(cachedCases));
+      return;
+    }
+
     // Загружаем блоки контента
     const { data: blocksData } = await supabase.from('content_blocks').select('*');
     if (blocksData) {
@@ -28,6 +42,7 @@ function App() {
         }
       }), {});
       setContentBlocks(blocks);
+      localStorage.setItem('contentBlocks', JSON.stringify(blocks));
       
       // Загружаем фоновое изображение из блока "hero" или другой таблицы
       const heroBlock = blocksData.find(block => block.name === 'hero');
@@ -38,7 +53,13 @@ function App() {
   
     // Загружаем кейсы
     const { data: casesData } = await supabase.from('cases').select('*').order('created_at', { ascending: false });
-    if (casesData) setCases(casesData);
+    if (casesData) {
+      setCases(casesData);
+      localStorage.setItem('cases', JSON.stringify(casesData));
+    }
+
+    // Обновляем timestamp кэша
+    localStorage.setItem('cacheTimestamp', Date.now().toString());
   };
   
 

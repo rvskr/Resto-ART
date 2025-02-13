@@ -19,11 +19,24 @@ const ContactForm: React.FC = () => {
   useEffect(() => {
     // Загрузка информации из contact_info
     const fetchContactInfo = async () => {
+      const cachedInfo = localStorage.getItem('contactInfo');
+      const cacheTimestamp = localStorage.getItem('contactInfoTimestamp');
+      const CACHE_DURATION = 1000 * 60 * 5; // 5 минут
+
+      const isStale = !cacheTimestamp || Date.now() - Number(cacheTimestamp) > CACHE_DURATION;
+
+      if (!isStale && cachedInfo) {
+        setContactInfo(JSON.parse(cachedInfo));
+        return;
+      }
+
       const { data, error } = await supabase.from('contact_info').select('*').single();
       if (error) {
         setError('Ошибка при загрузке данных контакта.');
       } else {
         setContactInfo(data);
+        localStorage.setItem('contactInfo', JSON.stringify(data));
+        localStorage.setItem('contactInfoTimestamp', Date.now().toString());
       }
     };
     fetchContactInfo();

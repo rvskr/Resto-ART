@@ -15,6 +15,17 @@ const PortfolioPage = () => {
   useEffect(() => {
     // Загружаем блоки контента
     const loadContentBlocks = async () => {
+      const cachedBlocks = localStorage.getItem('contentBlocks');
+      const cacheTimestamp = localStorage.getItem('cacheTimestamp');
+      const CACHE_DURATION = 1000 * 60 * 5; // 5 минут
+
+      const isStale = !cacheTimestamp || Date.now() - Number(cacheTimestamp) > CACHE_DURATION;
+
+      if (!isStale && cachedBlocks) {
+        setContentBlocks(JSON.parse(cachedBlocks));
+        return;
+      }
+
       const { data: blocksData } = await supabase.from('content_blocks').select('*');
       if (blocksData) {
         const blocks = blocksData.reduce((acc, block) => ({
@@ -25,6 +36,8 @@ const PortfolioPage = () => {
           }
         }), {});
         setContentBlocks(blocks);
+        localStorage.setItem('contentBlocks', JSON.stringify(blocks));
+        localStorage.setItem('cacheTimestamp', Date.now().toString());
       }
     };
     loadContentBlocks();
@@ -33,8 +46,23 @@ const PortfolioPage = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
     const loadCases = async () => {
+      const cachedCases = localStorage.getItem('cases');
+      const cacheTimestamp = localStorage.getItem('casesTimestamp');
+      const CACHE_DURATION = 1000 * 60 * 5; // 5 минут
+
+      const isStale = !cacheTimestamp || Date.now() - Number(cacheTimestamp) > CACHE_DURATION;
+
+      if (!isStale && cachedCases) {
+        setCases(JSON.parse(cachedCases));
+        return;
+      }
+
       const { data: casesData } = await supabase.from('cases').select('*').order('created_at', { ascending: false });
-      if (casesData) setCases(casesData);
+      if (casesData) {
+        setCases(casesData);
+        localStorage.setItem('cases', JSON.stringify(casesData));
+        localStorage.setItem('casesTimestamp', Date.now().toString());
+      }
     };
     loadCases();
   }, []);
