@@ -1,4 +1,5 @@
 export interface Case {
+  after_image: string | undefined;
   id: string;
   title: string;
   description: string;
