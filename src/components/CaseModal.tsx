@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useState } from 'react';
 import { Case } from '../types';
 
 interface CaseModalProps {
@@ -7,37 +7,51 @@ interface CaseModalProps {
 }
 
 function CaseModal({ case_, onClose }: CaseModalProps) {
-  const modalRef = useRef<HTMLDivElement>(null);
+  const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
-        onClose();
-      }
-    };
+  const handleClickOutside = (event: React.MouseEvent) => {
+    // Проверяем, что event.target является элементом (не нодой) с методом closest
+    const target = event.target as Element;
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [onClose]);
+    // Проверяем, что клик был вне модального окна и полноэкранного изображения
+    if (target && !target.closest('.modal-content') && !fullscreenImage) {
+      onClose();
+    }
+  };
+
+  const closeFullscreenImage = () => setFullscreenImage(null);
+
+  const handleClose = () => {
+    if (fullscreenImage) {
+      closeFullscreenImage(); // Закрыть полноэкранное изображение
+    } else {
+      onClose(); // Закрыть модальное окно
+    }
+  };
 
   return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-      <div
-        ref={modalRef}
-        className="bg-white rounded-lg max-w-4xl w-full max-h-[85vh] overflow-y-auto relative"
-      >
+    <div
+      className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+      onClick={handleClickOutside}
+    >
+      {/* Полноэкранное изображение */}
+      {fullscreenImage && (
+        <div
+          className="fixed inset-0 bg-black/80 flex items-center justify-center z-50"
+          onClick={closeFullscreenImage}
+        >
+          <img
+            src={fullscreenImage}
+            alt="Fullscreen"
+            className="max-w-[90%] max-h-[90%] rounded-lg shadow-lg"
+          />
+        </div>
+      )}
+
+      <div className="modal-content bg-white rounded-lg max-w-4xl w-full max-h-[85vh] overflow-y-auto relative">
         <div className="p-6">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-bold">{case_.title}</h2>
-            {/* Close button */}
-            <button
-              onClick={onClose}
-              className="text-gray-600 hover:text-gray-900 focus:outline-none text-3xl fixed top-7 right-5"
-            >
-              &times;
-            </button>
           </div>
 
           <div className="grid md:grid-cols-2 gap-6 mb-8">
@@ -46,7 +60,8 @@ function CaseModal({ case_, onClose }: CaseModalProps) {
               <img
                 src={case_.before_image}
                 alt="До реставрации"
-                className="w-full h-64 object-cover rounded-lg"
+                className="w-full h-64 object-cover rounded-lg cursor-pointer"
+                onClick={() => setFullscreenImage(case_.before_image || null)}
               />
             </div>
             <div>
@@ -54,7 +69,8 @@ function CaseModal({ case_, onClose }: CaseModalProps) {
               <img
                 src={case_.after_image}
                 alt="После реставрации"
-                className="w-full h-64 object-cover rounded-lg"
+                className="w-full h-64 object-cover rounded-lg cursor-pointer"
+                onClick={() => setFullscreenImage(case_.after_image || null)}
               />
             </div>
           </div>
@@ -79,6 +95,14 @@ function CaseModal({ case_, onClose }: CaseModalProps) {
           </div>
         </div>
       </div>
+
+      {/* Кнопка закрытия модального окна/изображения */}
+      <button
+        onClick={handleClose}
+        className="fixed top-5 right-5 text-3xl text-gray-600 hover:text-gray-900 focus:outline-none z-50"
+      >
+        &times;
+      </button>
     </div>
   );
 }

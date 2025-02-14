@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from '../lib/supabase';
 import * as LucideIcons from 'lucide-react';
-import { Pencil, Trash2, Plus, Save, Check } from 'lucide-react';
+import { Pencil, Trash2, Plus, Check } from 'lucide-react';
 
 // Получаем список уникальных иконок и удаляем дубликаты
 const iconNames = Array.from(new Set(
@@ -16,7 +16,7 @@ const DynamicIcon: React.FC<{ iconName: string; className?: string }> = ({ iconN
     .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
     .join('');
 
-  const IconComponent = (LucideIcons as Record<string, React.FC<any>>)[pascalCaseName];
+  const IconComponent = (LucideIcons as unknown as Record<string, React.FC<any>>)[pascalCaseName];
 
   if (!IconComponent) return null;
   return <IconComponent className={className} />;

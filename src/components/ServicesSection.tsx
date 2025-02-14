@@ -53,7 +53,7 @@ const ServicesSection: React.FC<ServicesSectionProps> = ({ contentBlocks }) => {
       .join('');
 
     // Получаем компонент иконки из Lucide
-    const IconComponent = (LucideIcons as Record<string, React.FC<any>>)[pascalCaseName];
+    const IconComponent = (LucideIcons as unknown as Record<string, React.FC<any>>)[pascalCaseName];
 
     if (!IconComponent) {
       console.warn(`Иконка "${iconName}" не найдена`);

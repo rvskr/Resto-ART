@@ -1,3 +1,5 @@
+import { useRef, useState } from "react";
+
 // IconPickerModal.tsx
 const IconPickerModal: React.FC<{
     isOpen: boolean;

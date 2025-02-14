@@ -19,10 +19,10 @@ const fields = [
 
 const ContactEdit: React.FC = () => {
   const [formData, setFormData] = useState({});
-  const [editableField, setEditableField] = useState<string | null>(null);
+  const [] = useState<string | null>(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [user, setUser] = useState<any>(null);
+  const [, setUser] = useState<any>(null);
 
   useEffect(() => {
     const fetchUser = async () => {

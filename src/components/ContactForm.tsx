@@ -77,7 +77,6 @@ const ContactForm: React.FC = () => {
         setFormData({ name: '', phone: '', email: '', message: '' });
   
         // Отправка данных в Telegram-бот
-        const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
         const botToken = import.meta.env.VITE_APP_BOT_TOKEN;  
         const chatId = import.meta.env.VITE_APP_CHAT_ID;  
         const messageText = `
@@ -101,7 +100,6 @@ const ContactForm: React.FC = () => {
           }),
         });
   
-        const data = await response.json();
   
         if (!response.ok) {
           console.error('Ошибка при отправке в Telegram:');  
