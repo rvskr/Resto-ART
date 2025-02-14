@@ -9,14 +9,10 @@ export default defineConfig({
   },
   server: {
     host: true, // Разрешает доступ извне
-    strictPort: true, // Гарантирует, что порт не изменится
-    cors: true, // Разрешает CORS для всех источников
-    proxy: {
-      '/api': {
-        target: 'https://resto-art.onrender.com', // Адрес API
-        changeOrigin: true,
-        secure: true, // true, если сервер работает на HTTPS
-      },
-    },
+    strictPort: true, // Фиксирует порт
+    cors: true, // Включает CORS
+  },
+  preview: {
+    host: true, // Разрешает предпросмотр на внешнем хосте
   },
 });
